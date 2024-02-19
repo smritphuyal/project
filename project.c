@@ -1,6 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+// Structure to represent a student
+typedef struct {
+    char name[50];
+    int ID;
+    int roll;
+    char grade;
+} Student;
+
+// Function prototypes
+void addStudent();
+void removeStudent();
+void searchStudent();
+void showStudent();
+void ask();
+
+// Function to add a student to the database
 void addStudent() {
     FILE *fptr;
     fptr = fopen("file.txt", "a"); // Open file in append mode
@@ -10,47 +26,52 @@ void addStudent() {
         return;
     }
 
-    char sn[50];
-    int ID;
+    Student newStudent;
 
-    // get name from user
+    // Get student details from user
     printf("Student name: ");
-    scanf("%s", sn);
-
-    // get student id from user
+    scanf(" %[^\n]", newStudent.name);
     printf("Enter student ID: ");
-    scanf("%d", &ID);
+    scanf("%d", &newStudent.ID);
+    printf("Enter student Roll: ");
+    scanf("%d", &newStudent.roll);
+    printf("Enter student grade: ");
+    scanf(" %c", &newStudent.grade); // Added space before %c
 
-    // show details
-    fprintf(fptr, "%d %s\n", ID, sn);
+    // Write student details to file
+    fprintf(fptr, "%d\t%s\t%d\t%c\n", newStudent.ID, newStudent.name, newStudent.roll, newStudent.grade);
 
     fclose(fptr);
-
-   ask();
-   printf("\n");
+    printf("\n");
+    //clears input buffer
+    fflush(stdin);
+    // Open ask function
+    ask();
 }
 
+// Function to remove a student from the database
 void removeStudent() {
-    //opening files
+    // Opening files
     FILE *fptr, *temp;
     fptr = fopen("file.txt", "r");
     temp = fopen("temp.txt", "w");
-//show error msg if file is empty
+
+    // Show error message if file is empty
     if (fptr == NULL || temp == NULL) {
         printf("Error opening file.\n");
         return;
     }
-    //asking user for id to remove
+
+    // Asking user for ID to remove
     int removeID;
     printf("Enter student ID to remove: ");
     scanf("%d", &removeID);
 
-    int ID;
-    char sn[50];
+    Student currentStudent;
 
-    while (fscanf(fptr, "%d %s", &ID, sn) != EOF) {
-        if (ID != removeID) {
-            fprintf(temp, "%d %s\n", ID, sn);
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
+        if (currentStudent.ID != removeID) {
+            fprintf(temp, "%d\t%s\t%d\t%c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
         }
     }
 
@@ -59,13 +80,14 @@ void removeStudent() {
 
     remove("file.txt");
     rename("temp.txt", "file.txt");
-
-
+    printf("\n");
+    //clears input buffer
+    fflush(stdin);
+    // Open ask function
     ask();
-     printf("\n");
-   
 }
 
+// Function to search for a student in the database
 void searchStudent() {
     FILE *fptr;
     fptr = fopen("file.txt", "r");
@@ -79,12 +101,11 @@ void searchStudent() {
     printf("Enter student ID to search: ");
     scanf("%d", &searchID);
 
-    int ID;
-    char sn[50];
+    Student currentStudent;
 
-    while (fscanf(fptr, "%d %s", &ID, sn) != EOF) {
-        if (ID == searchID) {
-            printf("Student found: %d %s\n", ID, sn);
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
+        if (currentStudent.ID == searchID) {
+            printf("Student found: %d %s %d %c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
             fclose(fptr);
             return;
         }
@@ -92,12 +113,15 @@ void searchStudent() {
 
     printf("Student not found.\n");
     fclose(fptr);
-
-
-   ask();
     printf("\n");
+    
+        //clears input buffer 
+    fflush(stdin);
+    // Call ask function
+    ask();
 }
 
+// Function to show all students' information
 void showStudent() {
     FILE *fptr;
     fptr = fopen("file.txt", "r");
@@ -107,44 +131,42 @@ void showStudent() {
         return;
     }
 
-    char info[100];
-    while (fgets(info, sizeof(info), fptr) != NULL) {
-        printf("%s", info);
+    Student currentStudent;
+
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
+        printf("ID: %d, Name: %s, Roll: %d, Grade: %c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
     }
 
     fclose(fptr);
 
-
+    printf("\n");
+        //clears input buffer 
+    fflush(stdin);
+    // Call ask function
     ask();
-     printf("\n");
-    
 }
 
-void ask(){
+// Function to ask the user for options
+void ask() {
     int n;
-    printf("Enter 1 to add student, 2 to remove student, 3 to show all student info,  4 to search student and 5 to exit : ");
+    printf("Enter 1 to add student, 2 to remove student, 3 to show all student info, 4 to search student, and 5 to exit: ");
     scanf("%d", &n);
-
+    printf("\n");
     switch (n) {
         case 1:
             addStudent();
             break;
-
         case 2:
             removeStudent();
             break;
-
         case 3:
             showStudent();
             break;
-
         case 4:
             searchStudent();
             break;
-
-            case 5:
+        case 5:
             exit(0);
-
             break;
         default:
             printf("Invalid option\n");
@@ -152,8 +174,8 @@ void ask(){
     }
 }
 
-void main() {
-   
-ask();
-//it took 6 hours to write
+// Main function
+int main() {
+    ask();
+    return 0;
 }
