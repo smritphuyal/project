@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 // Structure to represent a student
-typedef struct {
+typedef struct
+{
     char name[50];
     int ID;
     int roll;
@@ -17,11 +18,14 @@ void showStudent();
 void ask();
 
 // Function to add a student to the database
-void addStudent() {
+
+void addStudent()
+{
     FILE *fptr;
     fptr = fopen("file.txt", "a"); // Open file in append mode
 
-    if (fptr == NULL) {
+    if (fptr == NULL)
+    {
         printf("Error opening file.\n");
         return;
     }
@@ -31,33 +35,56 @@ void addStudent() {
     // Get student details from user
     printf("Student name: ");
     scanf(" %[^\n]", newStudent.name);
+
+    // Check if the ID already exists
     printf("Enter student ID: ");
     scanf("%d", &newStudent.ID);
+
+    FILE *checkFile = fopen("file.txt", "r");
+    if (checkFile != NULL)
+    {
+        Student currentStudent;
+        while (fscanf(checkFile, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF)
+        {
+            if (currentStudent.ID == newStudent.ID)
+            {
+                printf("A student with this ID already exists.\n");
+                fclose(checkFile);
+                fclose(fptr);
+                ask(); // Ask for options again
+                return;
+            }
+        }
+        fclose(checkFile);
+    }
+
     printf("Enter student Roll: ");
     scanf("%d", &newStudent.roll);
     printf("Enter student grade: ");
-    scanf(" %c", &newStudent.grade); // Added space before %c
+    scanf(" %c", &newStudent.grade);
 
     // Write student details to file
     fprintf(fptr, "%d\t%s\t%d\t%c\n", newStudent.ID, newStudent.name, newStudent.roll, newStudent.grade);
 
     fclose(fptr);
     printf("\n");
-    //clears input buffer
+    // clears input buffer
     fflush(stdin);
     // Open ask function
     ask();
 }
 
 // Function to remove a student from the database
-void removeStudent() {
+void removeStudent()
+{
     // Opening files
     FILE *fptr, *temp;
     fptr = fopen("file.txt", "r");
     temp = fopen("temp.txt", "w");
 
     // Show error message if file is empty
-    if (fptr == NULL || temp == NULL) {
+    if (fptr == NULL || temp == NULL)
+    {
         printf("Error opening file.\n");
         return;
     }
@@ -69,8 +96,10 @@ void removeStudent() {
 
     Student currentStudent;
 
-    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
-        if (currentStudent.ID != removeID) {
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF)
+    {
+        if (currentStudent.ID != removeID)
+        {
             fprintf(temp, "%d\t%s\t%d\t%c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
         }
     }
@@ -81,18 +110,20 @@ void removeStudent() {
     remove("file.txt");
     rename("temp.txt", "file.txt");
     printf("\n");
-    //clears input buffer
+    // clears input buffer
     fflush(stdin);
     // Open ask function
     ask();
 }
 
 // Function to search for a student in the database
-void searchStudent() {
+void searchStudent()
+{
     FILE *fptr;
     fptr = fopen("file.txt", "r");
 
-    if (fptr == NULL) {
+    if (fptr == NULL)
+    {
         printf("Error opening file.\n");
         return;
     }
@@ -103,8 +134,10 @@ void searchStudent() {
 
     Student currentStudent;
 
-    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
-        if (currentStudent.ID == searchID) {
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF)
+    {
+        if (currentStudent.ID == searchID)
+        {
             printf("Student found: %d %s %d %c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
             fclose(fptr);
             return;
@@ -114,68 +147,92 @@ void searchStudent() {
     printf("Student not found.\n");
     fclose(fptr);
     printf("\n");
-    
-        //clears input buffer 
+
+    // clears input buffer
     fflush(stdin);
     // Call ask function
     ask();
 }
 
 // Function to show all students' information
-void showStudent() {
+void showStudent()
+{
     FILE *fptr;
     fptr = fopen("file.txt", "r");
 
-    if (fptr == NULL) {
+    if (fptr == NULL)
+    {
         printf("Error opening file.\n");
         return;
     }
 
     Student currentStudent;
 
-    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF) {
+    while (fscanf(fptr, "%d\t%s\t%d\t%c", &currentStudent.ID, currentStudent.name, &currentStudent.roll, &currentStudent.grade) != EOF)
+    {
         printf("ID: %d, Name: %s, Roll: %d, Grade: %c\n", currentStudent.ID, currentStudent.name, currentStudent.roll, currentStudent.grade);
     }
 
     fclose(fptr);
 
     printf("\n");
-        //clears input buffer 
+    // clears input buffer
     fflush(stdin);
     // Call ask function
     ask();
 }
+// Function to clear the entire database
+void clearDatabase()
+{
+    FILE *fptr;
+    fptr = fopen("file.txt", "w"); // Open file in write mode (truncate)
+
+    if (fptr == NULL)
+    {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    fclose(fptr);
+    printf("Database cleared.\n");
+}
 
 // Function to ask the user for options
-void ask() {
+void ask()
+{
     int n;
-    printf("Enter 1 to add student, 2 to remove student, 3 to show all student info, 4 to search student, and 5 to exit: ");
+    printf("Enter \n 1 to add student,\n 2 to remove student,\n 3 to show all student info,\n 4 to search student, \n 5 to exit ,\n 6 to clear all information: ");
     scanf("%d", &n);
     printf("\n");
-    switch (n) {
-        case 1:
-            addStudent();
-            break;
-        case 2:
-            removeStudent();
-            break;
-        case 3:
-            showStudent();
-            break;
-        case 4:
-            searchStudent();
-            break;
-        case 5:
-            exit(0);
-            break;
-        default:
-            printf("Invalid option\n");
-            break;
+    switch (n)
+    {
+    case 1:
+        addStudent();
+        break;
+    case 2:
+        removeStudent();
+        break;
+    case 3:
+        showStudent();
+        break;
+    case 4:
+        searchStudent();
+        break;
+    case 5:
+        exit(0);
+        break;
+    case 6:
+        clearDatabase();
+        break;
+    default:
+        printf("Invalid option\n");
+        break;
     }
 }
 
 // Main function
-int main() {
+int main()
+{
     ask();
     return 0;
 }
